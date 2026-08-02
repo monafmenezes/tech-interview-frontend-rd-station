@@ -6,9 +6,11 @@ function RecommendationType({
   onRecommendationTypeChange,
 }) {
   return (
-    <fieldset className="mb-4">
-      <legend className="text-lg font-bold mb-2">Tipo de Recomendação:</legend>
-      <div className="flex items-center gap-4">
+    <fieldset className="mb-6">
+      <legend className="text-xs font-semibold uppercase tracking-wide text-neutral-500">
+        Tipo de Recomendação
+      </legend>
+      <div className="mt-3 flex items-center gap-5">
         <Checkbox
           type="radio"
           name="recommendationType"

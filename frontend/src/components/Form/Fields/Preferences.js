@@ -17,11 +17,13 @@ function Preferences({
   };
 
   return (
-    <div className="mb-4">
-      <h2 className="text-lg font-bold mb-2">Preferências:</h2>
-      <ul>
+    <div className="mb-6">
+      <h2 className="text-xs font-semibold uppercase tracking-wide text-neutral-500">
+        Preferências
+      </h2>
+      <ul className="mt-3 space-y-2.5">
         {preferences.map((preference) => (
-          <li key={preference} className="mb-2">
+          <li key={preference}>
             <Checkbox
               value={preference}
               checked={selectedPreferences.includes(preference)}
