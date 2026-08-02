@@ -73,13 +73,30 @@ describe('App - fluxo do formulário até a lista de recomendações', () => {
 
     userEvent.click(checkbox);
     expect(checkbox).not.toBeChecked();
+  });
 
-    userEvent.click(screen.getByLabelText('Múltiplos Produtos'));
-    userEvent.click(screen.getByRole('button', { name: 'Obter recomendação' }));
+  test('Mantém o envio indisponível enquanto nada estiver selecionado', async () => {
+    await renderApp();
+
+    const button = screen.getByRole('button', { name: 'Obter recomendação' });
+
+    expect(button).toHaveAttribute('aria-disabled', 'true');
+    expect(
+      screen.getByText('Selecione ao menos uma preferência ou funcionalidade.')
+    ).toBeInTheDocument();
+
+    userEvent.click(button);
 
     expect(
-      await screen.findByText('Nenhuma recomendação encontrada.')
+      screen.getByText('Nenhuma recomendação encontrada.')
     ).toBeInTheDocument();
+
+    userEvent.click(screen.getByLabelText('Integração com chatbots'));
+
+    expect(button).toHaveAttribute('aria-disabled', 'false');
+    expect(
+      screen.queryByText('Selecione ao menos uma preferência ou funcionalidade.')
+    ).not.toBeInTheDocument();
   });
 
   test('Troca o tipo de recomendação, mantendo apenas um selecionado', async () => {

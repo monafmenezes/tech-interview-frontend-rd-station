@@ -17,18 +17,22 @@ function Form({ onRecommendationsChange }) {
 
   const { getRecommendations } = useRecommendations(products);
 
+  const hasSelection =
+    formData.selectedPreferences.length > 0 ||
+    formData.selectedFeatures.length > 0;
+
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    if (!hasSelection) return;
+
     const dataRecommendations = getRecommendations(formData);
 
     onRecommendationsChange(dataRecommendations);
   };
 
   return (
-    <form
-      className="max-w-md mx-auto p-4 bg-white rounded-lg shadow-md"
-      onSubmit={handleSubmit}
-    >
+    <form onSubmit={handleSubmit}>
       <Preferences
         preferences={preferences}
         selectedPreferences={formData.selectedPreferences}
@@ -49,7 +53,16 @@ function Form({ onRecommendationsChange }) {
           handleChange('selectedRecommendationType', selected)
         }
       />
-      <SubmitButton text="Obter recomendação" />
+      <SubmitButton
+        text="Obter recomendação"
+        unavailable={!hasSelection}
+        describedBy="submit-help"
+      />
+      {!hasSelection && (
+        <p id="submit-help" className="mt-2 text-sm text-neutral-500">
+          Selecione ao menos uma preferência ou funcionalidade.
+        </p>
+      )}
     </form>
   );
 }
