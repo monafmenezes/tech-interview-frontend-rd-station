@@ -31,17 +31,20 @@ function Form({ onRecommendationsChange }) {
     >
       <Preferences
         preferences={preferences}
+        selectedPreferences={formData.selectedPreferences}
         onPreferenceChange={(selected) =>
           handleChange('selectedPreferences', selected)
         }
       />
       <Features
         features={features}
+        selectedFeatures={formData.selectedFeatures}
         onFeatureChange={(selected) =>
           handleChange('selectedFeatures', selected)
         }
       />
       <RecommendationType
+        selectedRecommendationType={formData.selectedRecommendationType}
         onRecommendationTypeChange={(selected) =>
           handleChange('selectedRecommendationType', selected)
         }

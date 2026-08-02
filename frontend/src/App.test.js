@@ -63,6 +63,39 @@ describe('App - fluxo do formulário até a lista de recomendações', () => {
     ).not.toBeInTheDocument();
   });
 
+  test('Permite desmarcar uma opção já selecionada', async () => {
+    await renderApp();
+
+    const checkbox = screen.getByLabelText('Integração com chatbots');
+
+    userEvent.click(checkbox);
+    expect(checkbox).toBeChecked();
+
+    userEvent.click(checkbox);
+    expect(checkbox).not.toBeChecked();
+
+    userEvent.click(screen.getByLabelText('Múltiplos Produtos'));
+    userEvent.click(screen.getByRole('button', { name: 'Obter recomendação' }));
+
+    expect(
+      await screen.findByText('Nenhuma recomendação encontrada.')
+    ).toBeInTheDocument();
+  });
+
+  test('Troca o tipo de recomendação, mantendo apenas um selecionado', async () => {
+    await renderApp();
+
+    const produtoUnico = screen.getByLabelText('Produto Único');
+    const multiplosProdutos = screen.getByLabelText('Múltiplos Produtos');
+
+    userEvent.click(produtoUnico);
+    expect(produtoUnico).toBeChecked();
+
+    userEvent.click(multiplosProdutos);
+    expect(multiplosProdutos).toBeChecked();
+    expect(produtoUnico).not.toBeChecked();
+  });
+
   test('Exibe vários produtos quando o tipo é Múltiplos Produtos', async () => {
     await renderApp();
 

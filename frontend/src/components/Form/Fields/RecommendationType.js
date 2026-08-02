@@ -1,7 +1,10 @@
 import React from 'react';
 import Checkbox from '../../shared/Checkbox';
 
-function RecommendationType({ onRecommendationTypeChange }) {
+function RecommendationType({
+  selectedRecommendationType,
+  onRecommendationTypeChange,
+}) {
   return (
     <fieldset className="mb-4">
       <legend className="text-lg font-bold mb-2">Tipo de Recomendação:</legend>
@@ -10,6 +13,7 @@ function RecommendationType({ onRecommendationTypeChange }) {
           type="radio"
           name="recommendationType"
           value="SingleProduct"
+          checked={selectedRecommendationType === 'SingleProduct'}
           onChange={() => onRecommendationTypeChange('SingleProduct')}
         >
           Produto Único
@@ -18,6 +22,7 @@ function RecommendationType({ onRecommendationTypeChange }) {
           type="radio"
           name="recommendationType"
           value="MultipleProducts"
+          checked={selectedRecommendationType === 'MultipleProducts'}
           onChange={() => onRecommendationTypeChange('MultipleProducts')}
         >
           Múltiplos Produtos
