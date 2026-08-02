@@ -102,6 +102,8 @@ saíram desse recorte, e cada um responde a um critério de aceite ou impedia a 
 | `hooks/useProducts.js` | Passa a listar todas as opções, sem duplicatas | Havia um `sort(() => Math.random() - 0.5).slice(0, 2)` que escondia **um terço do catálogo** a cada carregamento, de forma diferente a cada F5. O critério de aceite nº 1 exige receber as preferências do usuário pelo formulário, e não é possível selecionar uma opção que a tela não exibe — `Integração fácil com ferramentas de e-mail`, usada em dois dos testes fornecidos, podia simplesmente não aparecer. O `sort` ainda **mutava** o array de cada produto, os mesmos objetos pontuados depois. |
 | `components/Form/Fields/RecommendationType.js` | Rótulos associados aos rádios, agrupados em `fieldset`/`legend` | Os `<label htmlFor="SingleProduct">` apontavam para `id`s que não existem em lugar nenhum. Na prática: clicar no texto não selecionava a opção, e um leitor de tela anunciava um rádio sem nome. Passou a usar o mesmo componente `Checkbox` de rótulo envolvente dos demais campos. |
 | `package.json` (raiz) | `concurrently` declarado; `start` sobe backend e frontend | O script `dev` usava `concurrently` sem declará-lo, e `start` chamava `lerna run start` com `workspaces` apontando para `packages/*`, pasta que não existe no projeto — nenhum dos dois subia a aplicação. |
+| `Fields/Preferences.js`, `Fields/Features.js`, `hooks/useForm.js` | Campos passam a ser controlados pelo `formData` | Cada campo guardava a seleção em um `useState` interno **e** a enviava ao `formData` — duas cópias da mesma informação, livres para divergir. Agora leem a seleção por prop (`selectedPreferences` e `selectedFeatures` já existiam na assinatura e não eram usadas), com o `formData` como fonte única de verdade. O `useForm` passou a usar *updater* funcional, para que duas atualizações no mesmo ciclo não se sobrescrevam. |
+| `Fields/RecommendationType.js` | Rádios com `checked` | Eram componentes não controlados: o React não sabia qual opção estava marcada, só o DOM sabia. |
 | `.nvmrc`, `.gitignore` | Node fixado em 18; ignorar `build`, `coverage` e `.env` | Reprodutibilidade do ambiente e higiene do repositório. |
 
 ---
@@ -110,7 +112,7 @@ saíram desse recorte, e cada um responde a um critério de aceite ou impedia a 
 
 ```
 Test Suites: 2 passed, 2 total
-Tests:       18 passed, 18 total
+Tests:       20 passed, 20 total
 ```
 
 Os **quatro testes fornecidos foram mantidos intactos**. Os novos cobrem os casos de uso do
@@ -123,8 +125,9 @@ correspondência apenas por funcionalidade; escolha pelo **maior** score no `Sin
 imutabilidade do array de produtos recebido; chamadas sem `formData` e sem produtos.
 
 **`App.test.js`** — teste de integração do fluxo completo, com o serviço de produtos
-mockado: estado inicial vazio, catálogo exibido por inteiro, e marcar opções → submeter →
-ver a lista renderizada, nos dois tipos de recomendação. Ele cobre a ligação
+mockado: estado inicial vazio, catálogo exibido por inteiro, marcar opções → submeter →
+ver a lista renderizada nos dois tipos de recomendação, desmarcar uma opção já selecionada,
+e trocar o tipo mantendo apenas um rádio marcado. Ele cobre a ligação
 `Form` → `App` → `RecommendationList`, que os testes de serviço não alcançam.
 
 ---
@@ -154,17 +157,9 @@ foram vistos:
   aceite, mas quebraria ao instalar apenas o frontend ou quando o lerna mudasse de versão.
   Declará-lo alteraria o `yarn.lock` do frontend, mudança que preferi não fazer às vésperas
   da entrega.
-- **Estado duplicado em `Preferences.js` e `Features.js`.** Cada um guarda a seleção em um
-  `useState` interno *e* a envia ao `formData` do `Form`. Funciona, mas são duas cópias da
-  mesma informação; a versão do componente venceria em caso de divergência.
-- **`useForm` sem updater funcional.** `setFormData({ ...formData, [field]: value })` lê
-  `formData` da closure. Dois campos atualizados no mesmo ciclo perderiam um dos valores.
-  Não acontece no fluxo atual, em que cada interação é um evento isolado.
 - **`workspaces: ["packages/*"]` na raiz** aponta para uma pasta inexistente. Corrigir
   reorganizaria o *hoisting* de todos os `node_modules` às vésperas da entrega; contornei
   no script `start`, que não depende mais do lerna.
-- **`key={index}` nas listas.** Sem reordenação ou remoção no meio das listas, o índice não
-  causa problema aqui.
 
 ---
 
