@@ -104,6 +104,8 @@ saíram desse recorte, e cada um responde a um critério de aceite ou impedia a 
 | `package.json` (raiz) | `concurrently` declarado; `start` sobe backend e frontend | O script `dev` usava `concurrently` sem declará-lo, e `start` chamava `lerna run start` com `workspaces` apontando para `packages/*`, pasta que não existe no projeto — nenhum dos dois subia a aplicação. |
 | `Fields/Preferences.js`, `Fields/Features.js`, `hooks/useForm.js` | Campos passam a ser controlados pelo `formData` | Cada campo guardava a seleção em um `useState` interno **e** a enviava ao `formData` — duas cópias da mesma informação, livres para divergir. Agora leem a seleção por prop (`selectedPreferences` e `selectedFeatures` já existiam na assinatura e não eram usadas), com o `formData` como fonte única de verdade. O `useForm` passou a usar *updater* funcional, para que duas atualizações no mesmo ciclo não se sobrescrevam. |
 | `Fields/RecommendationType.js` | Rádios com `checked` | Eram componentes não controlados: o React não sabia qual opção estava marcada, só o DOM sabia. |
+| `Form.js`, `SubmitButton/SubmitButton.js` | Envio bloqueado sem nenhuma seleção | Era possível submeter sem marcar nada, e a lista vazia não distinguia *"ainda não busquei"* de *"busquei e não achei"*. A guarda de verdade está no `handleSubmit`. O botão usa **`aria-disabled` em vez de `disabled`**: o `disabled` nativo tira o botão da ordem de tabulação e não explica o que falta, enquanto o `aria-disabled` mantém o botão alcançável pelo teclado, anunciado como indisponível, e apontando via `aria-describedby` para a mensagem que diz o que selecionar. |
+| `App.js`, `Fields/*`, `shared/Checkbox.js`, `RecommendationList.js` | Layout | O `<form>` desenhava um cartão com sombra **dentro** do cartão que o `App` já desenhava. Passa a ser uma superfície única, com borda de 1px no lugar da sombra e a divisão entre colunas feita pela fresta do grid, que desaparece sozinha no mobile. Os checkboxes seguem sendo controles **nativos**, apenas coloridos com `accent-color` — um controle customizado é o caminho mais curto para quebrar teclado e leitor de tela. O texto do enunciado foi preservado na íntegra. |
 | `.nvmrc`, `.gitignore` | Node fixado em 18; ignorar `build`, `coverage` e `.env` | Reprodutibilidade do ambiente e higiene do repositório. |
 
 ---
@@ -112,7 +114,7 @@ saíram desse recorte, e cada um responde a um critério de aceite ou impedia a 
 
 ```
 Test Suites: 2 passed, 2 total
-Tests:       20 passed, 20 total
+Tests:       21 passed, 21 total
 ```
 
 Os **quatro testes fornecidos foram mantidos intactos**. Os novos cobrem os casos de uso do
@@ -127,7 +129,8 @@ imutabilidade do array de produtos recebido; chamadas sem `formData` e sem produ
 **`App.test.js`** — teste de integração do fluxo completo, com o serviço de produtos
 mockado: estado inicial vazio, catálogo exibido por inteiro, marcar opções → submeter →
 ver a lista renderizada nos dois tipos de recomendação, desmarcar uma opção já selecionada,
-e trocar o tipo mantendo apenas um rádio marcado. Ele cobre a ligação
+trocar o tipo mantendo apenas um rádio marcado, e o envio permanecer indisponível enquanto
+nada estiver selecionado. Ele cobre a ligação
 `Form` → `App` → `RecommendationList`, que os testes de serviço não alcançam.
 
 ---
